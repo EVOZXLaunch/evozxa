@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EVOZX Ultimate Factory v2.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #080808;
+            --card-bg: #12161A;
+            --primary-gold: #D4AF37;
+            --primary-blue: #007BFF;
+            --text-main: #F4F4F5;
+            --text-muted: #A1A1AA;
+            --border-color: rgba(212, 175, 55, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px; /* Optimal untuk readability desktop & mobile */
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--primary-gold);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 123, 255, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary-gold);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: rgba(0, 123, 255, 0.1);
+            color: var(--primary-blue);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            color: var(--text-main);
+            border-radius: 6px;
+            transition: border 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-blue), #0056b3);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        button.gold-btn {
+            background: linear-gradient(135deg, var(--primary-gold), #B5952F);
+            color: #000;
+        }
+
+        button.gold-btn:hover {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        .result-box {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(0,0,0,0.4);
+            border-left: 3px solid var(--primary-gold);
+            border-radius: 4px;
+            word-break: break-all; /* Mencegah overflow di mobile */
+        }
+
+        .code-block {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--primary-gold);
+            margin: 10px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 480px) {
+            .container { padding: 20px; border-radius: 8px; }
+            .header h1 { font-size: 1.5rem; }
+            button { padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>EVOZX Factory v2.0</h1>
+        <div class="status-badge" id="walletStatus">Not Connected</div>
+    </div>
+
+    <div class="form-group">
+        <button id="btnConnect">Connect Wallet (EVOZ Mainnet)</button>
+    </div>
+
+    <hr style="border-color: #333; margin: 20px 0;">
+
+    <div class="form-group">
+        <label>Token Name</label>
+        <input type="text" id="tokenName" placeholder="e.g. EVOZ Premium Token">
+    </div>
+    
+    <div class="form-group">
+        <label>Token Symbol</label>
+        <input type="text" id="tokenSymbol" placeholder="e.g. EPT">
+    </div>
+
+    <div class="form-group">
+        <label>Total Supply</label>
+        <input type="number" id="tokenSupply" placeholder="e.g. 1000000">
+    </div>
+
+    <button id="btnDeploy" class="gold-btn" disabled>Deploy & Generate Verification</button>
+
+    <div class="result-box" id="verificationModule">
+        <h3 style="color: var(--primary-blue); margin-bottom: 10px;">✅ Deployment Success</h3>
+        <p><strong>Contract Address:</strong> <br><span id="contractAddress" style="color: var(--text-muted);"></span></p>
+        
+        <h4 style="margin-top: 20px; color: var(--primary-gold);">Verification Package (EVOZScan)</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Gunakan argumen ini untuk verifikasi Etherscan/Blockscout.</p>
+        
+        <div class="code-block" id="constructorArgs"></div>
+        <button id="btnDownloadJson" style="font-size: 0.9rem; padding: 10px;">Download Standard Input JSON</button>
+        <button id="btnManage" class="gold-btn" style="font-size: 0.9rem; padding: 10px;">Go to Management Dashboard</button>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURASI NETWORK & ETHERS V6 ---
+    const EVOZ_CHAIN_ID = 805; // 0x325
+    let provider, signer, userAddress;
+
+    const UI = {
+        btnConnect: document.getElementById('btnConnect'),
+        btnDeploy: document.getElementById('btnDeploy'),
+        walletStatus: document.getElementById('walletStatus'),
+        verificationModule: document.getElementById('verificationModule'),
+        contractAddress: document.getElementById('contractAddress'),
+        constructorArgs: document.getElementById('constructorArgs'),
+        btnDownloadJson: document.getElementById('btnDownloadJson'),
+        btnManage: document.getElementById('btnManage')
+    };
+
+    // 1. MODULE: WALLET CONNECTION
+    async function connectWallet() {
+        if (!window.ethereum) {
+            alert("Harap install MetaMask atau Web3 Wallet lainnya.");
+            return;
+        }
+
+        try {
+            // Ethers v6 standard initialization
+            provider = new ethers.BrowserProvider(window.ethereum);
+            
+            // Request account access
+            await provider.send("eth_requestAccounts", []);
+            signer = await provider.getSigner();
+            userAddress = await signer.getAddress();
+
+            // Enforce Network (Chain ID 805)
+            const network = await provider.getNetwork();
+            if (Number(network.chainId) !== EVOZ_CHAIN_ID) {
+                await switchNetwork();
+            }
+
+            UI.walletStatus.innerText = `${userAddress.substring(0,6)}...${userAddress.substring(38)}`;
+            UI.walletStatus.style.color = "var(--primary-gold)";
+            UI.btnConnect.style.display = "none";
+            UI.btnDeploy.disabled = false;
+
+        } catch (error) {
+            console.error("Connection error:", error);
+            alert("Gagal terhubung ke wallet.");
+        }
+    }
+
+    async function switchNetwork() {
+        try {
+            await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: ethers.toQuantity(EVOZ_CHAIN_ID) }],
+            });
+        } catch (switchError) {
+            if (switchError.code === 4902) {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: ethers.toQuantity(EVOZ_CHAIN_ID),
+                        chainName: 'EVOZ Mainnet',
+                        nativeCurrency: { name: 'EVOZ', symbol: 'EVOZ', decimals: 18 },
+                        rpcUrls: ['https://rpc.evozscan.com'],
+                        blockExplorerUrls: ['https://evozscan.com']
+                    }]
+                });
+            }
+        }
+    }
+
+    // 2. MODULE: DEPLOYMENT & VERIFICATION GENERATOR
+    async function handleDeploy() {
+        const name = document.getElementById('tokenName').value;
+        const symbol = document.getElementById('tokenSymbol').value;
+        const supply = document.getElementById('tokenSupply').value;
+
+        if (!name || !symbol || !supply) {
+            alert("Harap lengkapi semua field.");
+            return;
+        }
+
+        UI.btnDeploy.innerText = "Processing Transaction...";
+        UI.btnDeploy.disabled = true;
+
+        try {
+            // CATATAN ARSITEKTUR:
+            // Di produksi, ini adalah tempat Anda memanggil Factory Contract.
+            // factoryContract.createToken(config) lalu mendengarkan event TokenCreated.
+            
+            // Simulasi delay deployment untuk demo UX
+            await new Promise(r => setTimeout(r, 2000));
+            
+            // Simulasi hasil Contract Address dari Event Logs
+            const mockDeployedAddress = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+
+            // --- VERIFICATION ENGINE (Ethers v6 AbiCoder) ---
+            // Mengenerate ABI Encoded Args persis seperti yang dibutuhkan EVOZScan
+            const abiCoder = ethers.AbiCoder.defaultAbiCoder();
+            const supplyWei = ethers.parseUnits(supply, 18);
+            
+            // Asumsi child token constructor: constructor(string name, string symbol, uint256 supply, address owner)
+            const encodedArgs = abiCoder.encode(
+                ["string", "string", "uint256", "address"],
+                [name, symbol, supplyWei, userAddress]
+            );
+
+            // Tampilkan UI Sukses
+            UI.contractAddress.innerText = mockDeployedAddress;
+            UI.constructorArgs.innerText = encodedArgs.slice(2); // Hilangkan '0x' sesuai standar input Blockscout
+            UI.verificationModule.style.display = "block";
+            UI.btnDeploy.style.display = "none";
+
+            // Bind fungsi download JSON
+            UI.btnDownloadJson.onclick = () => generateStandardJsonInput(name);
+
+        } catch (error) {
+            console.error("Deployment failed:", error);
+            alert("Deployment gagal. Cek console untuk detail.");
+            UI.btnDeploy.innerText = "Deploy & Generate Verification";
+            UI.btnDeploy.disabled = false;
+        }
+    }
+
+    // 3. MODULE: STANDARD JSON INPUT GENERATOR
+    function generateStandardJsonInput(tokenName) {
+        // Objek ini merepresentasikan konfigurasi compiler saat smart contract dikompilasi.
+        // Di produksi, Anda akan memuat source code aktual (.sol) via fetch/hardcode string.
+        const standardJson = {
+            language: "Solidity",
+            sources: {
+                "EVOZXToken.sol": {
+                    content: "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n// Kode smart contract lengkap Anda diletakkan di sini..."
+                }
+            },
+            settings: {
+                optimizer: {
+                    enabled: true,
+                    runs: 200
+                },
+                outputSelection: {
+                    "*": {
+                        "*": ["abi", "evm.bytecode", "evm.deployedBytecode"]
+                    }
+                }
+            }
+        };
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(standardJson, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `Verify_${tokenName.replace(/\s+/g, '')}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+
+    // Event Listeners
+    UI.btnConnect.addEventListener('click', connectWallet);
+    UI.btnDeploy.addEventListener('click', handleDeploy);
+    UI.btnManage.addEventListener('click', () => {
+        alert("Mengalihkan ke Dashboard Manajemen Token (Owner Only)...");
+    });
+
+</script>
+</body>
+</html>
