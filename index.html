@@ -2,231 +2,97 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVOZX Ultimate Factory v2.0</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVOZX Ultimate Token Factory</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 </head>
 <body>
 
-<div class="app-container">
-    <header class="navbar">
-        <div class="brand">
-            <h1>EVOZX <span>Ultimate Factory</span></h1>
-            <p>v2.0.0 Ecosystem • Chain ID 805</p>
-        </div>
-        <div class="nav-actions">
-            <div class="factory-input-group">
-                <label>Factory Address</label>
-                <input type="text" id="factoryAddress" placeholder="0x..." value="">
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>EVOZX Token Creator</h1>
             <button class="btn btn-gold" id="btnConnect">Connect Wallet</button>
+            <div id="walletAddress" style="margin-top: 10px; font-size: 0.8rem; color: #ccff00;"></div>
         </div>
-    </header>
 
-    <div class="global-status-bar">
-        <div>Connected User: <span id="userAddress" style="font-family: monospace; font-weight: bold;">0x...</span></div>
-        <div>Total Tokens Created Globally: <span id="txtGlobalTokens" style="font-weight: bold; color: var(--gold-primary);">-</span></div>
+        <div class="main-layout">
+            
+            <div class="form-section">
+                <div class="card">
+                    <div class="card-title">1. Token Basic Information</div>
+                    <div class="form-group">
+                        <label>Nama Token</label>
+                        <input type="text" id="tokenName" placeholder="Contoh: Bitcoin Evolved">
+                    </div>
+                    <div class="form-group">
+                        <label>Simbol Token</label>
+                        <input type="text" id="tokenSymbol" placeholder="Contoh: BTCX">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Supply (Jumlah Pasokan)</label>
+                        <input type="number" id="tokenSupply" value="1000000000">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">2. Fitur Tambahan (Ceklis Sesuai Keinginan)</div>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="featMintable"> Mintable (Bisa dicetak lagi)</label>
+                        <label><input type="checkbox" id="featBurnable"> Burnable (Bisa dibakar/dihapus)</label>
+                        <label><input type="checkbox" id="featOwnership"> Ownership Control (Kontrol Pemilik)</label>
+                        <label><input type="checkbox" id="featTrading"> Trading Control (Bisa jeda transfer)</label>
+                        <label><input type="checkbox" id="featMaxWallet"> Max Wallet Limit (Batasi Paus/Whale)</label>
+                        <label><input type="checkbox" id="featMaxTx"> Max Transaction Limit</label>
+                        <label><input type="checkbox" id="featBuyTax"> Aktifkan Buy Tax (Pajak Beli)</label>
+                        <label><input type="checkbox" id="featSellTax"> Aktifkan Sell Tax (Pajak Jual)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-section">
+                
+                <div class="card" style="border-color: rgba(212, 175, 55, 0.4);">
+                    <div class="card-title" style="color: #ffcc00;">EVOZX Gas Station (Swap Tool)</div>
+                    <p style="font-size: 0.75rem; color: #aaa; margin-bottom: 12px;">
+                        Belum punya Token EVOZX untuk biaya deploy? Tukar koin native EVOZ Anda di sini secara instan.
+                    </p>
+                    <div class="form-group">
+                        <label>Jumlah Koin EVOZ yang Mau Ditukar</label>
+                        <input type="number" id="swapInputEvoz" value="10" placeholder="Misal: 10">
+                    </div>
+                    <button class="btn btn-gold" id="btnExecuteSwap" style="width: 100%; margin-top: 10px;">
+                        Beli Token EVOZX
+                    </button>
+                    <div id="swapLogs" style="font-size: 0.75rem; color: #ffa500; margin-top: 8px; font-family: monospace;"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">3. Contract Deployment</div>
+                    <div class="form-group">
+                        <label>Factory Contract Address</label>
+                        <input type="text" id="factoryAddress" placeholder="0x..." value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Exchange Contract Address</label>
+                        <input type="text" id="exchangeAddress" placeholder="0x..." value="">
+                    </div>
+                    
+                    <button class="btn btn-gold" id="btnExecuteDeploy" style="width: 100%; font-size: 1.1rem; padding: 12px; margin-top: 15px;">
+                        LAUNCH TOKEN NOW
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">System Activity Log</div>
+                    <div id="logDisplay" style="background: #000; color: #00ff00; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; min-height: 100px; white-space: pre-wrap;">Menunggu dompet terhubung...</div>
+                </div>
+
+            </div>
+
+        </div>
     </div>
 
-    <nav class="tabs-nav">
-        <button class="tab-link active" onclick="switchTab(event, 'panelDeploy')">1. Deploy Asset</button>
-        <button class="tab-link" onclick="switchTab(event, 'panelVerify')">2. Verification Package</button>
-        <button class="tab-link" onclick="switchTab(event, 'panelManage')">3. Management Dashboard</button>
-    </nav>
-
-    <section id="panelDeploy" class="panel active grid-layout">
-        <div class="main-form">
-            <div class="card">
-                <div class="card-title">Core Token Configuration Parameters</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Token Name</label>
-                        <input type="text" id="param_name" value="EVOZX Standard Child">
-                    </div>
-                    <div class="form-group">
-                        <label>Token Symbol</label>
-                        <input type="text" id="param_symbol" value="ESC">
-                    </div>
-                    <div class="form-group">
-                        <label>Total Supply Amount</label>
-                        <input type="number" id="param_supply" value="10000000">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Launchkit Version Indicator</label>
-                        <input type="number" id="param_lkVersion" value="200" readonly>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Token Functional Architecture Flags</div>
-                <div class="switch-grid">
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_burnable" checked>
-                        <div class="switch-info"><h5>Burnable Logic</h5><p>Allows tokens to be burned from supply</p></div>
-                    </label>
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_mintable">
-                        <div class="switch-info"><h5>Mintable Expansion</h5><p>Enables inflation mechanism</p></div>
-                    </label>
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_ownershipEnabled" checked>
-                        <div class="switch-info"><h5>Enable Contract Ownership</h5><p>Secures root admin standards</p></div>
-                    </label>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Market Trading & Anti-Whale Protection Controls</div>
-                <div class="switch-grid" style="margin-bottom: 20px;">
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_tradingControlEnabled">
-                        <div class="switch-info"><h5>Trading Execution Control</h5><p>Manual toggle of transfers</p></div>
-                    </label>
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_tradingEnabled" checked>
-                        <div class="switch-info"><h5>Immediate Trading State</h5><p>Activates transfers immediately</p></div>
-                    </label>
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_maxWalletEnabled">
-                        <div class="switch-info"><h5>Anti-Whale Max Wallet</h5><p>Restricts max wallet capacity</p></div>
-                    </label>
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_maxTxEnabled">
-                        <div class="switch-info"><h5>Maximum Transaction</h5><p>Caps tokens per transaction</p></div>
-                    </label>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Max Wallet Percentage (%)</label>
-                        <input type="number" id="param_maxWalletPercent" value="2">
-                    </div>
-                    <div class="form-group">
-                        <label>Max Tx Percentage (%)</label>
-                        <input type="number" id="param_maxTxPercent" value="1">
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Token Tax, Burn Share & Fiscal Allocation Wallets</div>
-                <div class="switch-grid" style="margin-bottom: 20px;">
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_buyTaxEnabled">
-                        <div class="switch-info"><h5>Apply Purchase Buy Tax</h5><p>Deductions upon asset buy</p></div>
-                    </label>
-                    <label class="switch-box">
-                        <input type="checkbox" id="param_sellTaxEnabled">
-                        <div class="switch-info"><h5>Apply Disinvestment Sell Tax</h5><p>Deductions upon asset sales</p></div>
-                    </label>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Buy Tax Rate (%)</label>
-                        <input type="number" id="param_buyTax" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Sell Tax Rate (%)</label>
-                        <input type="number" id="param_sellTax" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Tax Burn Ratio (%)</label>
-                        <input type="number" id="param_burnTaxShare" value="0">
-                    </div>
-                </div>
-                <div class="form-row" style="margin-top: 12px;">
-                    <div class="form-group">
-                        <label>Marketing Fee Recipient Address</label>
-                        <input type="text" id="param_marketingWallet" value="0x0000000000000000000000000000000000000000">
-                    </div>
-                    <div class="form-group">
-                        <label>Development Support Address</label>
-                        <input type="text" id="param_developmentWallet" value="0x0000000000000000000000000000000000000000">
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Decentralized Branding Metadata</div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Official Web Domain Link</label>
-                        <input type="text" id="param_website" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Telegram Link</label>
-                        <input type="text" id="param_telegram" value="">
-                    </div>
-                    <div class="form-group">
-                        <label>Twitter X Link</label>
-                        <input type="text" id="param_twitter" value="">
-                    </div>
-                </div>
-                <div class="form-row" style="margin-top: 12px;">
-                    <div class="form-group">
-                        <label>Decentralized Logo URI (IPFS / HTTPS)</label>
-                        <input type="text" id="param_logoURI" value="">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="side-actions">
-            <div class="card" style="position: sticky; top: 90px;">
-                <div class="card-title">Factory Interaction Center</div>
-                <div style="margin-bottom: 20px;">
-                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px;">Dynamic Calculated Fee Required:</p>
-                    <h2 id="txtDeploymentFee" style="font-size: 1.6rem; font-weight: 700; color: var(--gold-primary);">0.0000 EVOZ</h2>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <button class="btn btn-outline" id="btnCalculateFee" style="width: 100%;">Fetch Smart Contract Fee</button>
-                    <button class="btn btn-blue" id="btnExecuteDeploy" style="width: 100%; font-size: 0.95rem; padding: 14px;" disabled>Execute Deployment Transaction</button>
-                </div>
-                <div style="margin-top: 20px;">
-                    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Transaction Console Output Logs:</label>
-                    <div id="deployLogs" class="output-box" style="font-size: 0.72rem; color: #E0E0E0; min-height: 100px;">System operational. Connect wallet to begin action cycles.</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="panelVerify" class="panel">
-        <div class="card">
-            <div class="card-title">EvozScan Source Code Verification Compliant Assets</div>
-            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 24px;">Gunakan modul ini untuk menghasilkan data kompilasi.</p>
-            <div style="margin-bottom: 20px;">
-                <h4 style="font-size: 0.85rem; color: var(--gold-primary); margin-bottom: 6px;">ABI-Encoded Constructor Arguments (Hex)</h4>
-                <div id="txtEncodedOutput" class="output-box" style="user-select: all; max-height: 120px;">Klik tombol kompilasi di bawah...</div>
-            </div>
-            <div style="margin-bottom: 24px;">
-                <h4 style="font-size: 0.85rem; color: var(--blue-primary); margin-bottom: 6px;">Solidity Compiler Standard Input File Parameters</h4>
-                <div id="txtStandardJsonPreview" class="output-box" style="color: #61AFEF;">Standard Input JSON configuration payload preview...</div>
-            </div>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button class="btn btn-blue" id="btnCompileVerification">Compile Verification Data Package</button>
-                <button class="btn btn-outline" id="btnDownloadJson" disabled>Download Standard Input JSON</button>
-            </div>
-        </div>
-    </section>
-
-    <section id="panelManage" class="panel">
-        <div class="card">
-            <div class="card-title">
-                <span>Personal Created Ledger Ecosystem</span>
-                <button class="btn btn-outline" id="btnRefreshLedger" style="padding: 6px 12px; font-size: 0.75rem;">Reload Ledger Data</button>
-            </div>
-            <div id="manageLedgerContainer" class="token-grid">
-                <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0; border: 1px dashed var(--border-color); border-radius: 8px;">
-                    Hubungkan dompet aktif Anda untuk melihat histori token.
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
