@@ -116,3 +116,196 @@ body {
     .card { padding: 16px; }
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+    background-color: #0a0a0c;
+}
+
+#cyberParticles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    font-size: 1.6rem;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
+}
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 25px;
+}
+
+@media (max-width: 768px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ACCORDION PATTERN */
+.accordion-item {
+    background: rgba(20, 20, 25, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    transition: border 0.3s ease;
+}
+
+.accordion-item:hover {
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+.accordion-header {
+    padding: 15px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(30, 30, 35, 0.4);
+    user-select: none;
+}
+
+.accordion-header .icon {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: #d4af37;
+}
+
+.accordion-content {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0, 1, 0, 1);
+    opacity: 0;
+}
+
+.accordion-item.active .accordion-content {
+    padding: 20px;
+    max-height: 1000px;
+    opacity: 1;
+    transition: all 0.3s cubic-bezier(1, 0, 1, 0);
+}
+
+.accordion-item.active .accordion-header .icon {
+    transform: rotate(180deg);
+}
+
+/* DASHBOARD PANEL */
+.card {
+    background: rgba(20, 20, 25, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.card-title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: #aaa;
+    margin-bottom: 6px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+}
+
+.checkbox-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: #ddd;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #d4af37;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.btn-gold {
+    background: #d4af37;
+    color: #000;
+}
+
+.btn-gold:hover:not(:disabled) {
+    background: #f1c40f;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+
+.btn:disabled {
+    background: #2a2a30 !important;
+    color: #666 !important;
+    cursor: not-allowed;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
