@@ -2,217 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVOZX Ultimate Token Factory</title>
+    <title>EVOZXA</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 </head>
 <body>
-
     <canvas id="cyberParticles"></canvas>
-
     <div class="container">
-        <div class="header">
-            <h1>EVOZX Token Creator</h1>
-            <button class="btn btn-gold" id="btnConnect">Connect Wallet</button>
-            <div id="walletAddress" style="margin-top: 10px; font-size: 0.8rem; color: #ccff00; text-shadow: 0 0 10px rgba(204,255,0,0.5);"></div>
+        <header>
+            <h1>EVOZXA FUTURE</h1>
+            <button id="btnConnect" class="btn">Connect Wallet</button>
+        </header>
+
+        <div class="slider-wrapper">
+            <div class="slider-track" id="sliderTrack">
+                <div class="slide"><h3>1. Token Core Info</h3><input type="text" id="tokenName" placeholder="Name"><input type="text" id="tokenSymbol" placeholder="Symbol"></div>
+                <div class="slide"><h3>2. Tokenomics</h3><input type="number" id="tokenSupply" value="1000000"></div>
+                <div class="slide"><h3>3. Security</h3><label><input type="checkbox" id="featMintable"> Mintable</label><label><input type="checkbox" id="featBurnable"> Burnable</label></div>
+            </div>
+            <div class="slider-nav">
+                <button onclick="changeSlide(-1)">Prev</button>
+                <button onclick="changeSlide(1)">Next</button>
+            </div>
         </div>
-
-        <div class="main-layout">
-            
-            <div class="form-section">
-                
-                <div class="accordion-item active">
-                    <div class="accordion-header">
-                        <span>1. Token Core Info</span>
-                        <span class="icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="form-group">
-                            <label>Token Name</label>
-                            <input type="text" id="tokenName" placeholder="Example: Bitcoin Evolved">
-                        </div>
-                        <div class="form-group">
-                            <label>Token Symbol</label>
-                            <input type="text" id="tokenSymbol" placeholder="Example: BTCX">
-                        </div>
-                        <div class="form-group">
-                            <label>Total Supply</label>
-                            <input type="number" id="tokenSupply" value="1000000000">
-                        </div>
-                        <div class="form-group">
-                            <label>Initial Owner Address</label>
-                            <input type="text" id="tokenOwner" placeholder="0x... (Leave empty to use your wallet)">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item">
-                    <div class="accordion-header">
-                        <span>2. Socials & Branding (Optional)</span>
-                        <span class="icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p style="font-size: 0.75rem; color: #ffa500; margin-bottom: 10px;">⚠️ Adding metadata structures increases deployment contract gas storage fees.</p>
-                        <div class="form-group">
-                            <label>Website Link</label>
-                            <input type="text" id="metaWebsite" placeholder="https://...">
-                        </div>
-                        <div class="form-group">
-                            <label>Telegram Link</label>
-                            <input type="text" id="metaTelegram" placeholder="https://t.me/...">
-                        </div>
-                        <div class="form-group">
-                            <label>Twitter/X Link</label>
-                            <input type="text" id="metaTwitter" placeholder="https://x.com/...">
-                        </div>
-                        <div class="form-group">
-                            <label>Logo URL (URI)</label>
-                            <input type="text" id="metaLogo" placeholder="https://.../logo.png">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item">
-                    <div class="accordion-header">
-                        <span>3. Standard Modules</span>
-                        <span class="icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="checkbox-group">
-                            <label><input type="checkbox" id="featMintable"> Mintable <span style="color:#ff4444; font-size:0.75rem;">(Incompatible with Tax System)</span></label>
-                            <label><input type="checkbox" id="featBurnable"> Burnable (Allows deflationary burning)</label>
-                            <label><input type="checkbox" id="featOwnership"> Ownership Control (Enables Admin access)</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item">
-                    <div class="accordion-header">
-                        <span>4. Security & Whale Protection</span>
-                        <span class="icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="checkbox-group">
-                            <label><input type="checkbox" id="featMaxWallet"> Enable Max Wallet Limit</label>
-                        </div>
-                        <div class="form-group nested-input" id="boxMaxWallet" style="display:none; margin-left:20px;">
-                            <label>Max Wallet Percentage (%)</label>
-                            <input type="number" id="valMaxWallet" value="2" min="1" max="100">
-                        </div>
-
-                        <div class="checkbox-group" style="margin-top:10px;">
-                            <label><input type="checkbox" id="featMaxTx"> Enable Max Transaction Limit</label>
-                        </div>
-                        <div class="form-group nested-input" id="boxMaxTx" style="display:none; margin-left:20px;">
-                            <label>Max Transaction Percentage (%)</label>
-                            <input type="number" id="valMaxTx" value="1" min="1" max="100">
-                        </div>
-
-                        <div class="checkbox-group" style="margin-top:10px;">
-                            <label><input type="checkbox" id="featTradingControl"> Enable Trading Control</label>
-                        </div>
-                        <div class="form-group nested-input" id="boxTradingControl" style="display:none; margin-left:20px;">
-                            <label><input type="checkbox" id="featTradingEnabled"> Directly Enable Trading Upon Deployment</label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item">
-                    <div class="accordion-header">
-                        <span>5. Tax Token System</span>
-                        <span class="icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p id="taxWarningBlock" style="color: #ff4444; font-size:0.8rem; display:none; margin-bottom:10px;">❌ Disabled: Cannot use taxation system while Mintable feature is checked.</p>
-                        <div id="taxFormFieldsContainer">
-                            <div class="checkbox-group">
-                                <label><input type="checkbox" id="featBuyTax"> Enable Buy Tax</label>
-                            </div>
-                            <div class="form-group nested-input" id="boxBuyTax" style="display:none; margin-left:20px;">
-                                <label>Buy Tax Percent (%)</label>
-                                <input type="number" id="valBuyTax" value="5" min="0" max="25">
-                            </div>
-
-                            <div class="checkbox-group" style="margin-top:10px;">
-                                <label><input type="checkbox" id="featSellTax"> Enable Sell Tax</label>
-                            </div>
-                            <div class="form-group nested-input" id="boxSellTax" style="display:none; margin-left:20px;">
-                                <label>Sell Tax Percent (%)</label>
-                                <input type="number" id="valSellTax" value="5" min="0" max="25">
-                            </div>
-
-                            <div class="form-group" style="margin-top:10px;">
-                                <label>Burn Share From Tax (%)</label>
-                                <input type="number" id="valBurnTaxShare" value="0" min="0" max="100">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Marketing Wallet Address</label>
-                                <input type="text" id="taxMarketingWallet" placeholder="0x... (Leave empty to use your wallet)">
-                            </div>
-                            <div class="form-group">
-                                <label>Development Wallet Address</label>
-                                <input type="text" id="taxDevWallet" placeholder="0x... (Leave empty to use your wallet)">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="action-section">
-                
-                <div class="card" style="border-color: rgba(212, 175, 55, 0.5); background: rgba(20,15,0,0.6);">
-                    <div class="card-title" style="color: #ffcc00; text-shadow: 0 0 8px rgba(255,204,0,0.4);">EVOZX Gas Station (Swap Tool)</div>
-                    <p style="font-size: 0.75rem; color: #aaa; margin-bottom: 12px;">Need EVOZX tokens? Swap native EVOZ coins instantly.</p>
-                    <div class="form-group">
-                        <label>Amount of EVOZ to Swap</label>
-                        <input type="number" id="swapInputEvoz" value="10">
-                    </div>
-                    <button class="btn btn-gold" id="btnExecuteSwap" style="width: 100%; margin-top: 10px;">Buy EVOZX Token</button>
-                    <div id="swapLogs" style="font-size: 0.75rem; color: #ffa500; margin-top: 8px; font-family: monospace;"></div>
-                </div>
-
-                <div class="card" style="border-color: #00ff00; background: rgba(0,20,0,0.6);">
-                    <div class="card-title" style="color: #00ff00;">Cost Breakdown (Rincian Biaya)</div>
-                    <div id="costBreakdownContainer" style="font-size: 0.8rem; color: #ccc; margin: 10px 0; line-height: 1.6;">
-                        Connecting to smart factory parameters...
-                    </div>
-                    <hr style="border: 0; border-top: 1px dashed rgba(0,255,0,0.3); margin: 10px 0;">
-                    <div style="display: flex; justify-content: space-between; font-weight: bold; color: #ccff00; font-size: 1.1rem;">
-                        <span>Total Tagihan:</span>
-                        <span><span id="txtLiveFee">0</span> EVOZX</span>
-                    </div>
-                </div>
-
-                <div class="card" style="background: transparent; padding: 0; border: none;">
-                    <button class="btn btn-gold" id="btnExecuteDeploy" style="width: 100%; font-size: 1.1rem; padding: 14px; box-shadow: 0 0 15px rgba(212,175,55,0.3);" disabled>
-                        CONNECT WALLET FIRST
-                    </button>
-                </div>
-
-                <div class="card" id="cardSuccessOutput" style="display: none; border-color: #00ffff; background: rgba(0, 30, 30, 0.85); box-shadow: 0 0 20px rgba(0,255,255,0.2);">
-                    <div class="card-title" style="color: #00ffff;">🎉 Token Successfully Deployed!</div>
-                    <div style="font-size: 0.85rem; color: #fff;">
-                        <p><strong>Your New Token Address:</strong></p>
-                        <div id="displayNewTokenAddress" style="background: #111; padding: 10px; border-radius: 4px; word-break: break-all; color: #00ff00; font-family: monospace; border: 1px solid #00ffff; margin: 5px 0;">0x...</div>
-                        <button class="btn" id="btnDownloadJson" style="background: #00ffff; color: #000; font-weight: bold; width: 100%; margin-top: 10px; border: none; box-shadow: 0 0 10px rgba(0,255,255,0.4);">
-                            📥 Download Standard Input JSON
-                        </button>
-                    </div>
-                </div>
-
-                <div class="card" style="background: rgba(0,0,0,0.85);">
-                    <div class="card-title">System Activity Log</div>
-                    <div id="logDisplay" style="background: #000; color: #00ff00; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 0.75rem; min-height: 110px; max-height: 150px; overflow-y: auto; white-space: pre-wrap; border: 1px solid #222;">Waiting for wallet connection...</div>
-                </div>
-
-            </div>
-
+        
+        <div class="dashboard">
+            <h3>Deployment Fee: <span id="txtLiveFee">0</span> EVOZX</h3>
+            <button id="btnExecuteDeploy" class="btn" disabled>LAUNCH TOKEN</button>
         </div>
     </div>
-
     <script src="app.js"></script>
 </body>
 </html>
