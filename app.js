@@ -217,18 +217,43 @@ async function triggerDeploymentTransaction() {
         const instance = getFactoryContractInstance();
         if (!instance || !web3Signer) return;
         DOM.btnExecuteDeploy.disabled = true;
+
+        // 1. Ambil jumlah fee yang diperlukan
         const requiredFeeWei = await processFetchFee();
         if (requiredFeeWei === null) { DOM.btnExecuteDeploy.disabled = false; return; }
 
+        // 2. Ambil alamat token EVOZX dari kontrak factory
+        const evozxTokenAddress = await instance.evozx();
+        
+        // ABI minimal untuk melakukan approve token ERC20
+        const erc20Abi = ["function approve(address spender, uint256 amount) public returns (bool)"];
+        const tokenContract = new ethers.Contract(evozxTokenAddress, erc20Abi, web3Signer);
+
+        updateLogDisplay("Meminta persetujuan (Approve) penggunaan Token EVOZX...");
+        
+        // 3. Lakukan APPROVE ke alamat Factory terlebih dahulu
+        const factoryAddr = DOM.factoryAddress.value.trim();
+        const approveTx = await tokenContract.approve(factoryAddr, requiredFeeWei);
+        updateLogDisplay(`Menunggu konfirmasi Approve: ${approveTx.hash}`);
+        await approveTx.wait();
+
+        // 4. Baru eksekusi createToken tanpa mengirim koin native (Tanpa {value})
         const config = extractTokenConfigObject();
-        updateLogDisplay("Menunggu konfirmasi transaksi pada dompet...");
-        const tx = await instance.createToken(config, { value: requiredFeeWei });
+        updateLogDisplay("Mengeksekusi pembuatan token pada kontrak factory...");
+        
+        // PANGGIL TANPA { value: ... } karena kontraknya nonpayable!
+        const tx = await instance.createToken(config); 
+        
         updateLogDisplay(`Transaksi terkirim: ${tx.hash}`);
         await tx.wait();
+        
         updateLogDisplay("Sukses! Kontrak token berhasil dideploy.");
         loadGlobalStatistics();
         DOM.btnExecuteDeploy.disabled = false;
-    } catch (err) { updateLogDisplay(`Eksekusi gagal: ${err.message}`); DOM.btnExecuteDeploy.disabled = false; }
+    } catch (err) { 
+        updateLogDisplay(`Eksekusi gagal: ${err.message}`); 
+        DOM.btnExecuteDeploy.disabled = false; 
+    }
 }
 
 function compileVerificationPackage() {
