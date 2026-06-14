@@ -5,357 +5,228 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EVOZX Ultimate Factory v2.0</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #080808;
-            --card-bg: #12161A;
-            --primary-gold: #D4AF37;
-            --primary-blue: #007BFF;
-            --text-main: #F4F4F5;
-            --text-muted: #A1A1AA;
-            --border-color: rgba(212, 175, 55, 0.3);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.6;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 600px; /* Optimal untuk readability desktop & mobile */
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-top: 4px solid var(--primary-gold);
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 8px 32px rgba(0, 123, 255, 0.1);
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: var(--primary-gold);
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            background-color: rgba(0, 123, 255, 0.1);
-            color: var(--primary-blue);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            background-color: rgba(0,0,0,0.5);
-            border: 1px solid #333;
-            color: var(--text-main);
-            border-radius: 6px;
-            transition: border 0.3s ease;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--primary-blue), #0056b3);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.4);
-            transform: translateY(-1px);
-        }
-
-        button.gold-btn {
-            background: linear-gradient(135deg, var(--primary-gold), #B5952F);
-            color: #000;
-        }
-
-        button.gold-btn:hover {
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-        }
-
-        .result-box {
-            display: none;
-            margin-top: 30px;
-            padding: 20px;
-            background-color: rgba(0,0,0,0.4);
-            border-left: 3px solid var(--primary-gold);
-            border-radius: 4px;
-            word-break: break-all; /* Mencegah overflow di mobile */
-        }
-
-        .code-block {
-            background: #000;
-            padding: 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: var(--primary-gold);
-            margin: 10px 0;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 480px) {
-            .container { padding: 20px; border-radius: 8px; }
-            .header h1 { font-size: 1.5rem; }
-            button { padding: 12px; }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>EVOZX Factory v2.0</h1>
-        <div class="status-badge" id="walletStatus">Not Connected</div>
+<div class="app-container">
+    <header class="navbar">
+        <div class="brand">
+            <h1>EVOZX <span>Ultimate Factory</span></h1>
+            <p>v2.0.0 Ecosystem • Chain ID 805</p>
+        </div>
+        <div class="nav-actions">
+            <div class="factory-input-group">
+                <label>Factory Address</label>
+                <input type="text" id="factoryAddress" placeholder="0x..." value="">
+            </div>
+            <button class="btn btn-gold" id="btnConnect">Connect Wallet</button>
+        </div>
+    </header>
+
+    <div class="global-status-bar">
+        <div>Connected User: <span id="userAddress" style="font-family: monospace; font-weight: bold;">0x...</span></div>
+        <div>Total Tokens Created Globally: <span id="txtGlobalTokens" style="font-weight: bold; color: var(--gold-primary);">-</span></div>
     </div>
 
-    <div class="form-group">
-        <button id="btnConnect">Connect Wallet (EVOZ Mainnet)</button>
-    </div>
+    <nav class="tabs-nav">
+        <button class="tab-link active" onclick="switchTab(event, 'panelDeploy')">1. Deploy Asset</button>
+        <button class="tab-link" onclick="switchTab(event, 'panelVerify')">2. Verification Package</button>
+        <button class="tab-link" onclick="switchTab(event, 'panelManage')">3. Management Dashboard</button>
+    </nav>
 
-    <hr style="border-color: #333; margin: 20px 0;">
+    <section id="panelDeploy" class="panel active grid-layout">
+        <div class="main-form">
+            <div class="card">
+                <div class="card-title">Core Token Configuration Parameters</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Token Name</label>
+                        <input type="text" id="param_name" value="EVOZX Standard Child">
+                    </div>
+                    <div class="form-group">
+                        <label>Token Symbol</label>
+                        <input type="text" id="param_symbol" value="ESC">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Supply Amount</label>
+                        <input type="number" id="param_supply" value="10000000">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Launchkit Version Indicator</label>
+                        <input type="number" id="param_lkVersion" value="200" readonly>
+                    </div>
+                </div>
+            </div>
 
-    <div class="form-group">
-        <label>Token Name</label>
-        <input type="text" id="tokenName" placeholder="e.g. EVOZ Premium Token">
-    </div>
-    
-    <div class="form-group">
-        <label>Token Symbol</label>
-        <input type="text" id="tokenSymbol" placeholder="e.g. EPT">
-    </div>
+            <div class="card">
+                <div class="card-title">Token Functional Architecture Flags</div>
+                <div class="switch-grid">
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_burnable" checked>
+                        <div class="switch-info"><h5>Burnable Logic</h5><p>Allows tokens to be burned from supply</p></div>
+                    </label>
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_mintable">
+                        <div class="switch-info"><h5>Mintable Expansion</h5><p>Enables inflation mechanism</p></div>
+                    </label>
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_ownershipEnabled" checked>
+                        <div class="switch-info"><h5>Enable Contract Ownership</h5><p>Secures root admin standards</p></div>
+                    </label>
+                </div>
+            </div>
 
-    <div class="form-group">
-        <label>Total Supply</label>
-        <input type="number" id="tokenSupply" placeholder="e.g. 1000000">
-    </div>
+            <div class="card">
+                <div class="card-title">Market Trading & Anti-Whale Protection Controls</div>
+                <div class="switch-grid" style="margin-bottom: 20px;">
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_tradingControlEnabled">
+                        <div class="switch-info"><h5>Trading Execution Control</h5><p>Manual toggle of transfers</p></div>
+                    </label>
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_tradingEnabled" checked>
+                        <div class="switch-info"><h5>Immediate Trading State</h5><p>Activates transfers immediately</p></div>
+                    </label>
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_maxWalletEnabled">
+                        <div class="switch-info"><h5>Anti-Whale Max Wallet</h5><p>Restricts max wallet capacity</p></div>
+                    </label>
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_maxTxEnabled">
+                        <div class="switch-info"><h5>Maximum Transaction</h5><p>Caps tokens per transaction</p></div>
+                    </label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Max Wallet Percentage (%)</label>
+                        <input type="number" id="param_maxWalletPercent" value="2">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Tx Percentage (%)</label>
+                        <input type="number" id="param_maxTxPercent" value="1">
+                    </div>
+                </div>
+            </div>
 
-    <button id="btnDeploy" class="gold-btn" disabled>Deploy & Generate Verification</button>
+            <div class="card">
+                <div class="card-title">Token Tax, Burn Share & Fiscal Allocation Wallets</div>
+                <div class="switch-grid" style="margin-bottom: 20px;">
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_buyTaxEnabled">
+                        <div class="switch-info"><h5>Apply Purchase Buy Tax</h5><p>Deductions upon asset buy</p></div>
+                    </label>
+                    <label class="switch-box">
+                        <input type="checkbox" id="param_sellTaxEnabled">
+                        <div class="switch-info"><h5>Apply Disinvestment Sell Tax</h5><p>Deductions upon asset sales</p></div>
+                    </label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Buy Tax Rate (%)</label>
+                        <input type="number" id="param_buyTax" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Sell Tax Rate (%)</label>
+                        <input type="number" id="param_sellTax" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Tax Burn Ratio (%)</label>
+                        <input type="number" id="param_burnTaxShare" value="0">
+                    </div>
+                </div>
+                <div class="form-row" style="margin-top: 12px;">
+                    <div class="form-group">
+                        <label>Marketing Fee Recipient Address</label>
+                        <input type="text" id="param_marketingWallet" value="0x0000000000000000000000000000000000000000">
+                    </div>
+                    <div class="form-group">
+                        <label>Development Support Address</label>
+                        <input type="text" id="param_developmentWallet" value="0x0000000000000000000000000000000000000000">
+                    </div>
+                </div>
+            </div>
 
-    <div class="result-box" id="verificationModule">
-        <h3 style="color: var(--primary-blue); margin-bottom: 10px;">✅ Deployment Success</h3>
-        <p><strong>Contract Address:</strong> <br><span id="contractAddress" style="color: var(--text-muted);"></span></p>
-        
-        <h4 style="margin-top: 20px; color: var(--primary-gold);">Verification Package (EVOZScan)</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">Gunakan argumen ini untuk verifikasi Etherscan/Blockscout.</p>
-        
-        <div class="code-block" id="constructorArgs"></div>
-        <button id="btnDownloadJson" style="font-size: 0.9rem; padding: 10px;">Download Standard Input JSON</button>
-        <button id="btnManage" class="gold-btn" style="font-size: 0.9rem; padding: 10px;">Go to Management Dashboard</button>
-    </div>
+            <div class="card">
+                <div class="card-title">Decentralized Branding Metadata</div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Official Web Domain Link</label>
+                        <input type="text" id="param_website" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Telegram Link</label>
+                        <input type="text" id="param_telegram" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Twitter X Link</label>
+                        <input type="text" id="param_twitter" value="">
+                    </div>
+                </div>
+                <div class="form-row" style="margin-top: 12px;">
+                    <div class="form-group">
+                        <label>Decentralized Logo URI (IPFS / HTTPS)</label>
+                        <input type="text" id="param_logoURI" value="">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-actions">
+            <div class="card" style="position: sticky; top: 90px;">
+                <div class="card-title">Factory Interaction Center</div>
+                <div style="margin-bottom: 20px;">
+                    <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px;">Dynamic Calculated Fee Required:</p>
+                    <h2 id="txtDeploymentFee" style="font-size: 1.6rem; font-weight: 700; color: var(--gold-primary);">0.0000 EVOZ</h2>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button class="btn btn-outline" id="btnCalculateFee" style="width: 100%;">Fetch Smart Contract Fee</button>
+                    <button class="btn btn-blue" id="btnExecuteDeploy" style="width: 100%; font-size: 0.95rem; padding: 14px;" disabled>Execute Deployment Transaction</button>
+                </div>
+                <div style="margin-top: 20px;">
+                    <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Transaction Console Output Logs:</label>
+                    <div id="deployLogs" class="output-box" style="font-size: 0.72rem; color: #E0E0E0; min-height: 100px;">System operational. Connect wallet to begin action cycles.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="panelVerify" class="panel">
+        <div class="card">
+            <div class="card-title">EvozScan Source Code Verification Compliant Assets</div>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 24px;">Gunakan modul ini untuk menghasilkan data kompilasi.</p>
+            <div style="margin-bottom: 20px;">
+                <h4 style="font-size: 0.85rem; color: var(--gold-primary); margin-bottom: 6px;">ABI-Encoded Constructor Arguments (Hex)</h4>
+                <div id="txtEncodedOutput" class="output-box" style="user-select: all; max-height: 120px;">Klik tombol kompilasi di bawah...</div>
+            </div>
+            <div style="margin-bottom: 24px;">
+                <h4 style="font-size: 0.85rem; color: var(--blue-primary); margin-bottom: 6px;">Solidity Compiler Standard Input File Parameters</h4>
+                <div id="txtStandardJsonPreview" class="output-box" style="color: #61AFEF;">Standard Input JSON configuration payload preview...</div>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-blue" id="btnCompileVerification">Compile Verification Data Package</button>
+                <button class="btn btn-outline" id="btnDownloadJson" disabled>Download Standard Input JSON</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="panelManage" class="panel">
+        <div class="card">
+            <div class="card-title">
+                <span>Personal Created Ledger Ecosystem</span>
+                <button class="btn btn-outline" id="btnRefreshLedger" style="padding: 6px 12px; font-size: 0.75rem;">Reload Ledger Data</button>
+            </div>
+            <div id="manageLedgerContainer" class="token-grid">
+                <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0; border: 1px dashed var(--border-color); border-radius: 8px;">
+                    Hubungkan dompet aktif Anda untuk melihat histori token.
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
-<script>
-    // --- KONFIGURASI NETWORK & ETHERS V6 ---
-    const EVOZ_CHAIN_ID = 805; // 0x325
-    let provider, signer, userAddress;
-
-    const UI = {
-        btnConnect: document.getElementById('btnConnect'),
-        btnDeploy: document.getElementById('btnDeploy'),
-        walletStatus: document.getElementById('walletStatus'),
-        verificationModule: document.getElementById('verificationModule'),
-        contractAddress: document.getElementById('contractAddress'),
-        constructorArgs: document.getElementById('constructorArgs'),
-        btnDownloadJson: document.getElementById('btnDownloadJson'),
-        btnManage: document.getElementById('btnManage')
-    };
-
-    // 1. MODULE: WALLET CONNECTION
-    async function connectWallet() {
-        if (!window.ethereum) {
-            alert("Harap install MetaMask atau Web3 Wallet lainnya.");
-            return;
-        }
-
-        try {
-            // Ethers v6 standard initialization
-            provider = new ethers.BrowserProvider(window.ethereum);
-            
-            // Request account access
-            await provider.send("eth_requestAccounts", []);
-            signer = await provider.getSigner();
-            userAddress = await signer.getAddress();
-
-            // Enforce Network (Chain ID 805)
-            const network = await provider.getNetwork();
-            if (Number(network.chainId) !== EVOZ_CHAIN_ID) {
-                await switchNetwork();
-            }
-
-            UI.walletStatus.innerText = `${userAddress.substring(0,6)}...${userAddress.substring(38)}`;
-            UI.walletStatus.style.color = "var(--primary-gold)";
-            UI.btnConnect.style.display = "none";
-            UI.btnDeploy.disabled = false;
-
-        } catch (error) {
-            console.error("Connection error:", error);
-            alert("Gagal terhubung ke wallet.");
-        }
-    }
-
-    async function switchNetwork() {
-        try {
-            await window.ethereum.request({
-                method: 'wallet_switchEthereumChain',
-                params: [{ chainId: ethers.toQuantity(EVOZ_CHAIN_ID) }],
-            });
-        } catch (switchError) {
-            if (switchError.code === 4902) {
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: ethers.toQuantity(EVOZ_CHAIN_ID),
-                        chainName: 'EVOZ Mainnet',
-                        nativeCurrency: { name: 'EVOZ', symbol: 'EVOZ', decimals: 18 },
-                        rpcUrls: ['https://rpc.evozscan.com'],
-                        blockExplorerUrls: ['https://evozscan.com']
-                    }]
-                });
-            }
-        }
-    }
-
-    // 2. MODULE: DEPLOYMENT & VERIFICATION GENERATOR
-    async function handleDeploy() {
-        const name = document.getElementById('tokenName').value;
-        const symbol = document.getElementById('tokenSymbol').value;
-        const supply = document.getElementById('tokenSupply').value;
-
-        if (!name || !symbol || !supply) {
-            alert("Harap lengkapi semua field.");
-            return;
-        }
-
-        UI.btnDeploy.innerText = "Processing Transaction...";
-        UI.btnDeploy.disabled = true;
-
-        try {
-            // CATATAN ARSITEKTUR:
-            // Di produksi, ini adalah tempat Anda memanggil Factory Contract.
-            // factoryContract.createToken(config) lalu mendengarkan event TokenCreated.
-            
-            // Simulasi delay deployment untuk demo UX
-            await new Promise(r => setTimeout(r, 2000));
-            
-            // Simulasi hasil Contract Address dari Event Logs
-            const mockDeployedAddress = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
-
-            // --- VERIFICATION ENGINE (Ethers v6 AbiCoder) ---
-            // Mengenerate ABI Encoded Args persis seperti yang dibutuhkan EVOZScan
-            const abiCoder = ethers.AbiCoder.defaultAbiCoder();
-            const supplyWei = ethers.parseUnits(supply, 18);
-            
-            // Asumsi child token constructor: constructor(string name, string symbol, uint256 supply, address owner)
-            const encodedArgs = abiCoder.encode(
-                ["string", "string", "uint256", "address"],
-                [name, symbol, supplyWei, userAddress]
-            );
-
-            // Tampilkan UI Sukses
-            UI.contractAddress.innerText = mockDeployedAddress;
-            UI.constructorArgs.innerText = encodedArgs.slice(2); // Hilangkan '0x' sesuai standar input Blockscout
-            UI.verificationModule.style.display = "block";
-            UI.btnDeploy.style.display = "none";
-
-            // Bind fungsi download JSON
-            UI.btnDownloadJson.onclick = () => generateStandardJsonInput(name);
-
-        } catch (error) {
-            console.error("Deployment failed:", error);
-            alert("Deployment gagal. Cek console untuk detail.");
-            UI.btnDeploy.innerText = "Deploy & Generate Verification";
-            UI.btnDeploy.disabled = false;
-        }
-    }
-
-    // 3. MODULE: STANDARD JSON INPUT GENERATOR
-    function generateStandardJsonInput(tokenName) {
-        // Objek ini merepresentasikan konfigurasi compiler saat smart contract dikompilasi.
-        // Di produksi, Anda akan memuat source code aktual (.sol) via fetch/hardcode string.
-        const standardJson = {
-            language: "Solidity",
-            sources: {
-                "EVOZXToken.sol": {
-                    content: "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\n// Kode smart contract lengkap Anda diletakkan di sini..."
-                }
-            },
-            settings: {
-                optimizer: {
-                    enabled: true,
-                    runs: 200
-                },
-                outputSelection: {
-                    "*": {
-                        "*": ["abi", "evm.bytecode", "evm.deployedBytecode"]
-                    }
-                }
-            }
-        };
-
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(standardJson, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `Verify_${tokenName.replace(/\s+/g, '')}.json`);
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-    }
-
-    // Event Listeners
-    UI.btnConnect.addEventListener('click', connectWallet);
-    UI.btnDeploy.addEventListener('click', handleDeploy);
-    UI.btnManage.addEventListener('click', () => {
-        alert("Mengalihkan ke Dashboard Manajemen Token (Owner Only)...");
-    });
-
-</script>
+<script src="app.js"></script>
 </body>
 </html>
