@@ -2,35 +2,111 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EVOZXA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVOZX Factory | Ultimate Deployment</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
 </head>
 <body>
+
     <canvas id="cyberParticles"></canvas>
+
     <div class="container">
         <header>
-            <h1>EVOZXA FUTURE</h1>
-            <button id="btnConnect" class="btn">Connect Wallet</button>
+            <h1>EVOZX Factory</h1>
+            <button id="btnConnect" class="btn btn-gold">Connect Wallet</button>
         </header>
 
         <div class="slider-wrapper">
             <div class="slider-track" id="sliderTrack">
-                <div class="slide"><h3>1. Token Core Info</h3><input type="text" id="tokenName" placeholder="Name"><input type="text" id="tokenSymbol" placeholder="Symbol"></div>
-                <div class="slide"><h3>2. Tokenomics</h3><input type="number" id="tokenSupply" value="1000000"></div>
-                <div class="slide"><h3>3. Security</h3><label><input type="checkbox" id="featMintable"> Mintable</label><label><input type="checkbox" id="featBurnable"> Burnable</label></div>
+                <div class="slide">
+                    <h3>1. Token Core Info</h3>
+                    <div class="form-group">
+                        <input type="text" id="tokenName" placeholder="Token Name (e.g. MyToken)">
+                        <input type="text" id="tokenSymbol" placeholder="Symbol (e.g. TKN)">
+                    </div>
+                </div>
+                <div class="slide">
+                    <h3>2. Initial Supply</h3>
+                    <div class="form-group">
+                        <input type="number" id="tokenSupply" value="1000000" placeholder="Total Supply">
+                    </div>
+                </div>
+                <div class="slide">
+                    <h3>3. Security Features</h3>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" id="featMintable"> Mintable</label>
+                        <label><input type="checkbox" id="featBurnable"> Burnable</label>
+                    </div>
+                </div>
             </div>
+
             <div class="slider-nav">
-                <button onclick="changeSlide(-1)">Prev</button>
-                <button onclick="changeSlide(1)">Next</button>
+                <button class="btn" onclick="changeSlide(-1)">Back</button>
+                <button class="btn" onclick="changeSlide(1)">Next</button>
             </div>
         </div>
         
         <div class="dashboard">
-            <h3>Deployment Fee: <span id="txtLiveFee">0</span> EVOZX</h3>
-            <button id="btnExecuteDeploy" class="btn" disabled>LAUNCH TOKEN</button>
+            <div class="fee-display">
+                <p>Deployment Fee:</p>
+                <h3><span id="txtLiveFee">0</span> EVOZX</h3>
+            </div>
+            
+            <div class="actions">
+                <button id="btnExecuteSwap" class="btn btn-secondary">Swap EVOZ to EVOZX</button>
+                <button id="btnExecuteDeploy" class="btn btn-gold" disabled>LAUNCH TOKEN</button>
+            </div>
         </div>
     </div>
+
     <script src="app.js"></script>
+    <script>
+        // Inisialisasi Partikel Background
+        function initBackground() {
+            const canvas = document.getElementById('cyberParticles');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            // --- ANIMASI PARTIKEL CYBERPUNK (Auto-Run) ---
+function initBackground() {
+    const canvas = document.getElementById('cyberParticles');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = Array.from({ length: 50 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2
+    }));
+
+    function animate() {
+        ctx.fillStyle = "rgba(5, 5, 5, 0.2)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#d4af37";
+        
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+            if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
+
+// Jalankan otomatis saat web load
+window.addEventListener('load', initBackground);
+
+        }
+        initBackground();
+    </script>
 </body>
 </html>
