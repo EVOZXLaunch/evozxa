@@ -652,18 +652,61 @@ function buildMetadataStruct(){
   };
 }
 
-function validateBeforeDeploy(cfg){
-  if(!cfg.name) return 'Nama token wajib diisi.';
-  if(!cfg.symbol) return 'Simbol token wajib diisi.';
-  if(cfg.supply.initialSupply > cfg.supply.maxSupply) return 'Initial supply tidak boleh lebih besar dari max supply.';
-  const taxOn = cfg.taxes.buyTaxEnabled || cfg.taxes.sellTaxEnabled || cfg.taxes.transferTaxEnabled;
-  if(taxOn){
-    const totalShare = cfg.taxes.burnShare + cfg.taxes.marketingShare + cfg.taxes.developmentShare +
-      cfg.taxes.treasuryShare + cfg.taxes.liquidityShare + cfg.taxes.buybackShare + cfg.taxes.charityShare;
-    if(totalShare !== 100) return 'Total pembagian pajak (share) harus = 100, saat ini ' + totalShare + '.';
-    if(cfg.taxes.buyTax > 25 || cfg.taxes.sellTax > 25 || cfg.taxes.transferTax > 25)
-      return 'Setiap pajak (buy/sell/transfer) maksimal 25%.';
-  }
+function validateBeforeDeploy(cfg) {
+
+  if (!cfg.name) return 'Nama token wajib diisi.';
+  if (!cfg.symbol) return 'Simbol token wajib diisi.';
+
+  if (cfg.supply.initialSupply > cfg.supply.maxSupply)
+      return 'Initial supply tidak boleh lebih besar dari max supply.';
+
+  const totalShare =
+      cfg.taxes.burnShare +
+      cfg.taxes.marketingShare +
+      cfg.taxes.developmentShare +
+      cfg.taxes.treasuryShare +
+      cfg.taxes.liquidityShare +
+      cfg.taxes.buybackShare +
+      cfg.taxes.charityShare;
+
+  if (totalShare !== 100)
+      return `Total pembagian pajak harus 100. Saat ini ${totalShare}.`;
+
+  if (cfg.taxes.buyTax > 25)
+      return 'Buy Tax maksimal 25%.';
+
+  if (cfg.taxes.sellTax > 25)
+      return 'Sell Tax maksimal 25%.';
+
+  if (cfg.taxes.transferTax > 25)
+      return 'Transfer Tax maksimal 25%.';
+
+  const ZERO = "0x0000000000000000000000000000000000000000";
+
+  if (cfg.taxes.marketingShare > 0 &&
+      cfg.taxes.marketingWallet === ZERO)
+      return 'Marketing Wallet wajib diisi.';
+
+  if (cfg.taxes.developmentShare > 0 &&
+      cfg.taxes.developmentWallet === ZERO)
+      return 'Development Wallet wajib diisi.';
+
+  if (cfg.taxes.treasuryShare > 0 &&
+      cfg.taxes.treasuryWallet === ZERO)
+      return 'Treasury Wallet wajib diisi.';
+
+  if (cfg.taxes.liquidityShare > 0 &&
+      cfg.taxes.liquidityWallet === ZERO)
+      return 'Liquidity Wallet wajib diisi.';
+
+  if (cfg.taxes.buybackShare > 0 &&
+      cfg.taxes.buybackWallet === ZERO)
+      return 'Buyback Wallet wajib diisi.';
+
+  if (cfg.taxes.charityShare > 0 &&
+      cfg.taxes.charityWallet === ZERO)
+      return 'Charity Wallet wajib diisi.';
+                                                                    }
   return null;
 }
 
