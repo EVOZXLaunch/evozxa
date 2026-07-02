@@ -652,61 +652,43 @@ function buildMetadataStruct(){
   };
 }
 
-function validateBeforeDeploy(cfg) {
+function validateBeforeDeploy(cfg){
+  if(!cfg.name || cfg.name.length < 2 || cfg.name.length > 64)
+    return 'Nama token wajib diisi, panjang 2-64 karakter.';
+  if(!cfg.symbol || cfg.symbol.length < 2 || cfg.symbol.length > 12)
+    return 'Simbol token wajib diisi, panjang 2-12 karakter.';
+  if(cfg.supply.initialSupply === 0n) return 'Initial supply tidak boleh 0.';
+  if(cfg.supply.initialSupply > cfg.supply.maxSupply) return 'Initial supply tidak boleh lebih besar dari max supply.';
 
-  if (!cfg.name) return 'Nama token wajib diisi.';
-  if (!cfg.symbol) return 'Simbol token wajib diisi.';
+  // Kontrak SELALU mewajibkan total share = 100, terlepas dari status enabled pajak.
+  const totalShare = cfg.taxes.burnShare + cfg.taxes.marketingShare + cfg.taxes.developmentShare +
+    cfg.taxes.treasuryShare + cfg.taxes.liquidityShare + cfg.taxes.buybackShare + cfg.taxes.charityShare;
+  if(totalShare !== 100) return 'Total pembagian pajak (share) harus = 100 (saat ini ' + totalShare + '), berlaku walau pajak nonaktif.';
 
-  if (cfg.supply.initialSupply > cfg.supply.maxSupply)
-      return 'Initial supply tidak boleh lebih besar dari max supply.';
+  if(cfg.taxes.buyTax > 25 || cfg.taxes.sellTax > 25 || cfg.taxes.transferTax > 25)
+    return 'Setiap pajak (buy/sell/transfer) maksimal 25%.';
 
-  const totalShare =
-      cfg.taxes.burnShare +
-      cfg.taxes.marketingShare +
-      cfg.taxes.developmentShare +
-      cfg.taxes.treasuryShare +
-      cfg.taxes.liquidityShare +
-      cfg.taxes.buybackShare +
-      cfg.taxes.charityShare;
+  // Kontrak mewajibkan wallet tujuan diisi (bukan 0x0) untuk setiap share > 0.
+  const ZERO = '0x0000000000000000000000000000000000000000';
+  const walletChecks = [
+    ['marketingShare','marketingWallet','Marketing'],
+    ['developmentShare','developmentWallet','Development'],
+    ['treasuryShare','treasuryWallet','Treasury'],
+    ['liquidityShare','liquidityWallet','Liquidity'],
+    ['buybackShare','buybackWallet','Buyback'],
+    ['charityShare','charityWallet','Charity']
+  ];
+  for(const [shareKey, walletKey, label] of walletChecks){
+    if(cfg.taxes[shareKey] > 0 && cfg.taxes[walletKey] === ZERO){
+      return `Wallet ${label} wajib diisi karena share-nya > 0.`;
+    }
+  }
 
-  if (totalShare !== 100)
-      return `Total pembagian pajak harus 100. Saat ini ${totalShare}.`;
+  if(cfg.security.maxWalletEnabled && cfg.security.maxWalletPercent === 0)
+    return 'Max wallet % wajib diisi (> 0) kalau "Batasi max wallet" aktif.';
+  if(cfg.security.maxTxEnabled && cfg.security.maxTxPercent === 0)
+    return 'Max tx % wajib diisi (> 0) kalau "Batasi max transaksi" aktif.';
 
-  if (cfg.taxes.buyTax > 25)
-      return 'Buy Tax maksimal 25%.';
-
-  if (cfg.taxes.sellTax > 25)
-      return 'Sell Tax maksimal 25%.';
-
-  if (cfg.taxes.transferTax > 25)
-      return 'Transfer Tax maksimal 25%.';
-
-  const ZERO = "0x0000000000000000000000000000000000000000";
-
-  if (cfg.taxes.marketingShare > 0 &&
-      cfg.taxes.marketingWallet === ZERO)
-      return 'Marketing Wallet wajib diisi.';
-
-  if (cfg.taxes.developmentShare > 0 &&
-      cfg.taxes.developmentWallet === ZERO)
-      return 'Development Wallet wajib diisi.';
-
-  if (cfg.taxes.treasuryShare > 0 &&
-      cfg.taxes.treasuryWallet === ZERO)
-      return 'Treasury Wallet wajib diisi.';
-
-  if (cfg.taxes.liquidityShare > 0 &&
-      cfg.taxes.liquidityWallet === ZERO)
-      return 'Liquidity Wallet wajib diisi.';
-
-  if (cfg.taxes.buybackShare > 0 &&
-      cfg.taxes.buybackWallet === ZERO)
-      return 'Buyback Wallet wajib diisi.';
-
-  if (cfg.taxes.charityShare > 0 &&
-      cfg.taxes.charityWallet === ZERO)
-      return 'Charity Wallet wajib diisi.';
-                                                                    }
   return null;
 }
 
